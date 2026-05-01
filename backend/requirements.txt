@@ -3,5 +3,5 @@ pydantic==2.6.4
 uvicorn[standard]==0.30.6
 
 python-multipart==0.0.9
-
+gunicorn
 google-genai==1.16.0

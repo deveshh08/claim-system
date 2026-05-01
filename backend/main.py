@@ -13,8 +13,12 @@ Routes:
 from __future__ import annotations
 
 import json
+import logging
 import os
+import sys
+import uuid
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 # Load .env file if present (for local development)
 try:
@@ -24,18 +28,11 @@ try:
         load_dotenv(env_path)
 except ImportError:
     pass  # python-dotenv not installed (production doesn't need it)
-import logging
-import os
-import sys
-import uuid
-from pathlib import Path
-from typing import Any, Dict, List, Optional
 
 import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
 
 # Add backend root to path so relative imports work
 sys.path.insert(0, str(Path(__file__).parent))
@@ -63,7 +60,10 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173",  # Local dev
+        "https://claim-system-1.onrender.com",  # Production frontend
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -278,15 +278,6 @@ def _eval_match(expected: Dict[str, Any], result: DecisionResult) -> bool:
             return False
 
     return True
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Serve frontend static files (production)
-# ─────────────────────────────────────────────────────────────────────────────
-
-_FRONTEND_DIST = Path(__file__).parent.parent / "frontend" / "dist"
-if _FRONTEND_DIST.exists():
-    app.mount("/", StaticFiles(directory=str(_FRONTEND_DIST), html=True), name="static")
 
 
 if __name__ == "__main__":

@@ -158,15 +158,3 @@ Set `GEMINI_API_KEY` in the Render dashboard Environment tab.
 
 ---
 
-## Deployment to Render
-
-1. Push this project to GitHub
-2. Go to [render.com](https://render.com) → New → Web Service
-3. Connect your repository
-4. Render auto-detects `render.yaml` and configures:
-   - Build: installs Python deps + builds React frontend
-   - Start: runs `uvicorn` (serves API + static frontend)
-5. Set `GEMINI_API_KEY` in Environment tab
-6. Deploy
-
-The app serves both API (`/api/*`) and the built React UI (`/`) from a single web service.

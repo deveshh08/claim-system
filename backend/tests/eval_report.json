@@ -1,0 +1,543 @@
+[
+  {
+    "case_id": "TC001",
+    "case_name": "Wrong Document Uploaded",
+    "matched": true,
+    "match_note": "Correctly stopped before decision",
+    "expected": {
+      "decision": null,
+      "system_must": [
+        "Stop before making any claim decision",
+        "Tell the member specifically what document type was uploaded and what is needed instead",
+        "Not return a generic error \u2014 the message must name the uploaded document type and the required document type"
+      ]
+    },
+    "actual": {
+      "decision": null,
+      "approved_amount": 0.0,
+      "confidence_score": 0.0,
+      "rejection_reasons": [
+        "Your claim for CONSULTATION requires an official hospital or clinic bill, which is missing from your submission. Please upload an official hospital or clinic bill to proceed."
+      ],
+      "line_item_decisions": [],
+      "degraded_pipeline": false,
+      "component_failures": [],
+      "explanation": "Your claim for CONSULTATION requires an official hospital or clinic bill, which is missing from your submission. Please upload an official hospital or clinic bill to proceed."
+    },
+    "trace": [
+      {
+        "agent": "DocumentVerificationAgent",
+        "status": "SUCCESS",
+        "error": null
+      }
+    ]
+  },
+  {
+    "case_id": "TC002",
+    "case_name": "Unreadable Document",
+    "matched": true,
+    "match_note": "Correctly stopped before decision",
+    "expected": {
+      "decision": null,
+      "system_must": [
+        "Identify that the pharmacy bill cannot be read",
+        "Ask the member to re-upload that specific document",
+        "Not reject the claim outright"
+      ]
+    },
+    "actual": {
+      "decision": null,
+      "approved_amount": 0.0,
+      "confidence_score": 0.0,
+      "rejection_reasons": [
+        "The document 'blurry_bill.jpg' (type: a pharmacy bill) could not be read \u2014 the image is too blurry or low resolution. Please re-upload a clear, well-lit photo or scan of this document."
+      ],
+      "line_item_decisions": [],
+      "degraded_pipeline": false,
+      "component_failures": [],
+      "explanation": "The document 'blurry_bill.jpg' (type: a pharmacy bill) could not be read \u2014 the image is too blurry or low resolution. Please re-upload a clear, well-lit photo or scan of this document."
+    },
+    "trace": [
+      {
+        "agent": "DocumentVerificationAgent",
+        "status": "SUCCESS",
+        "error": null
+      }
+    ]
+  },
+  {
+    "case_id": "TC003",
+    "case_name": "Documents Belong to Different Patients",
+    "matched": true,
+    "match_note": "Correctly stopped before decision",
+    "expected": {
+      "decision": null,
+      "system_must": [
+        "Detect that the documents belong to different people",
+        "Surface this to the member with the specific names found on each document",
+        "Not proceed to a claim decision"
+      ]
+    },
+    "actual": {
+      "decision": null,
+      "approved_amount": 0.0,
+      "confidence_score": 0.0,
+      "rejection_reasons": [
+        "The documents appear to belong to different patients: 'Rajesh Kumar' (on F005), 'Arjun Mehta' (on F006). All documents in a single claim must be for the same patient. Please verify and re-upload the correct documents."
+      ],
+      "line_item_decisions": [],
+      "degraded_pipeline": false,
+      "component_failures": [],
+      "explanation": "The documents appear to belong to different patients: 'Rajesh Kumar' (on F005), 'Arjun Mehta' (on F006). All documents in a single claim must be for the same patient. Please verify and re-upload the correct documents."
+    },
+    "trace": [
+      {
+        "agent": "DocumentVerificationAgent",
+        "status": "SUCCESS",
+        "error": null
+      }
+    ]
+  },
+  {
+    "case_id": "TC004",
+    "case_name": "Clean Consultation \u2014 Full Approval",
+    "matched": true,
+    "match_note": "Decision: APPROVED | Amount: \u20b91350.00",
+    "expected": {
+      "decision": "APPROVED",
+      "approved_amount": 1350,
+      "notes": "10% co-pay applied on consultation category (\u20b9150 deducted)",
+      "confidence_score": "above 0.85"
+    },
+    "actual": {
+      "decision": "APPROVED",
+      "approved_amount": 1350.0,
+      "confidence_score": 0.95,
+      "rejection_reasons": [],
+      "line_item_decisions": [],
+      "degraded_pipeline": false,
+      "component_failures": [],
+      "explanation": "Claim: CONSULTATION | Member: EMP001 | Claimed: \u20b91,500\n\nPolicy checks passed (9):\n  \u2713 member_eligibility: Member EMP001 found in roster\n  \u2713 submission_deadline: 0 days since treatment; deadline is 30 days\n  \u2713 minimum_claim_amount: Claimed \u20b91500.0; minimum is \u20b9500.0\n  \u2713 initial_waiting_period: Join date: 2024-04-01; initial waiting ends: 2024-05-01; treatment: 2024-11-01\n  \u2713 exclusion_check: No exclusion matched\n  \u2713 pre_authorization: Pre-auth not required\n  \u2713 per_claim_limit: Claimed \u20b91500.0; per-claim limit is \u20b95000.0\n  \u2713 network_hospital: Hospital 'City Clinic, Bengaluru' is NOT IN network\n  \u2713 copay: Co-pay 10.0% applied: \u20b91500.0 \u2192 \u20b91350.0 (member pays \u20b9150.0)\n\nFinancial calculation:\n  Co-pay (member bears): \u2212\u20b9150.00\n  Approved amount: \u20b91,350.00\n\nDocument extraction (avg confidence: 1.00):\n  PRESCRIPTION [F007]: confidence 1.00\n  HOSPITAL_BILL [F008]: confidence 1.00"
+    },
+    "trace": [
+      {
+        "agent": "DocumentVerificationAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "DocumentExtractionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "FraudDetectionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "PolicyEngine",
+        "status": "SUCCESS",
+        "error": null
+      }
+    ]
+  },
+  {
+    "case_id": "TC005",
+    "case_name": "Waiting Period \u2014 Diabetes",
+    "matched": true,
+    "match_note": "Decision: REJECTED",
+    "expected": {
+      "decision": "REJECTED",
+      "rejection_reasons": [
+        "WAITING_PERIOD"
+      ],
+      "system_must": [
+        "State the date from which the member will be eligible for diabetes-related claims"
+      ]
+    },
+    "actual": {
+      "decision": "REJECTED",
+      "approved_amount": 0.0,
+      "confidence_score": 0.92,
+      "rejection_reasons": [
+        "WAITING_PERIOD \u2014 Diabetes (90 days); eligible from 30 Nov 2024"
+      ],
+      "line_item_decisions": [],
+      "degraded_pipeline": false,
+      "component_failures": [],
+      "explanation": "Claim: CONSULTATION | Member: EMP005 | Claimed: \u20b93,000\n\nPolicy checks passed (5):\n  \u2713 member_eligibility: Member EMP005 found in roster\n  \u2713 submission_deadline: 0 days since treatment; deadline is 30 days\n  \u2713 minimum_claim_amount: Claimed \u20b93000.0; minimum is \u20b9500.0\n  \u2713 initial_waiting_period: Join date: 2024-09-01; initial waiting ends: 2024-10-01; treatment: 2024-10-15\n  \u2713 exclusion_check: No exclusion matched\n\nPolicy checks failed (1):\n  \u2717 waiting_period_diabetes: Condition 'diabetes' has 90-day waiting period; ends 2024-11-30; treatment was 2024-10-15\n\nRejection reasons:\n  \u2022 WAITING_PERIOD \u2014 Diabetes (90 days); eligible from 30 Nov 2024\n\nDocument extraction (avg confidence: 1.00):\n  PRESCRIPTION [F009]: confidence 1.00\n  HOSPITAL_BILL [F010]: confidence 1.00"
+    },
+    "trace": [
+      {
+        "agent": "DocumentVerificationAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "DocumentExtractionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "FraudDetectionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "PolicyEngine",
+        "status": "SUCCESS",
+        "error": null
+      }
+    ]
+  },
+  {
+    "case_id": "TC006",
+    "case_name": "Dental Partial Approval \u2014 Cosmetic Exclusion",
+    "matched": true,
+    "match_note": "Decision: PARTIAL | Amount: \u20b98000.00",
+    "expected": {
+      "decision": "PARTIAL",
+      "approved_amount": 8000,
+      "system_must": [
+        "Itemize which line items were approved and which were rejected",
+        "State the reason for each rejection at the line-item level"
+      ]
+    },
+    "actual": {
+      "decision": "PARTIAL",
+      "approved_amount": 8000.0,
+      "confidence_score": 0.95,
+      "rejection_reasons": [],
+      "line_item_decisions": [
+        {
+          "description": "Root Canal Treatment",
+          "claimed_amount": 8000.0,
+          "approved_amount": 8000.0,
+          "decision": "APPROVED",
+          "reason": "Covered dental procedure"
+        },
+        {
+          "description": "Teeth Whitening",
+          "claimed_amount": 4000.0,
+          "approved_amount": 0.0,
+          "decision": "REJECTED",
+          "reason": "Excluded dental procedure \u2014 'Teeth Whitening' is not covered under the policy"
+        }
+      ],
+      "degraded_pipeline": false,
+      "component_failures": [],
+      "explanation": "Claim: DENTAL | Member: EMP002 | Claimed: \u20b912,000\n\nPolicy checks passed (9):\n  \u2713 member_eligibility: Member EMP002 found in roster\n  \u2713 submission_deadline: 0 days since treatment; deadline is 30 days\n  \u2713 minimum_claim_amount: Claimed \u20b912000.0; minimum is \u20b9500.0\n  \u2713 initial_waiting_period: Join date: 2024-04-01; initial waiting ends: 2024-05-01; treatment: 2024-10-15\n  \u2713 exclusion_check: No exclusion matched\n  \u2713 pre_authorization: Pre-auth not required\n  \u2713 per_claim_limit: Per-claim limit skipped for DENTAL (line-item evaluation applies)\n  \u2713 dental_line_item:Root Canal Treatment: Covered procedure: Root Canal Treatment (\u20b98000.0)\n  \u2713 network_hospital: Hospital 'Smile Dental Clinic' is NOT IN network\n\nPolicy checks failed (1):\n  \u2717 dental_line_item:Teeth Whitening: Excluded procedure: Teeth Whitening (\u20b94000.0)\n\nFinancial calculation:\n  Base (after exclusions): \u20b98,000 (excluded \u20b94,000)\n  Approved amount: \u20b98,000.00\n\nDocument extraction (avg confidence: 1.00):\n  HOSPITAL_BILL [F011]: confidence 1.00"
+    },
+    "trace": [
+      {
+        "agent": "DocumentVerificationAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "DocumentExtractionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "FraudDetectionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "PolicyEngine",
+        "status": "SUCCESS",
+        "error": null
+      }
+    ]
+  },
+  {
+    "case_id": "TC007",
+    "case_name": "MRI Without Pre-Authorization",
+    "matched": true,
+    "match_note": "Decision: REJECTED",
+    "expected": {
+      "decision": "REJECTED",
+      "rejection_reasons": [
+        "PRE_AUTH_MISSING"
+      ],
+      "system_must": [
+        "Explain that pre-authorization was required and not obtained",
+        "Tell the member what they should do to resubmit with pre-auth"
+      ]
+    },
+    "actual": {
+      "decision": "REJECTED",
+      "approved_amount": 0.0,
+      "confidence_score": 0.92,
+      "rejection_reasons": [
+        "PRE_AUTH_MISSING \u2014 Pre-authorization is required for this procedure (MRI/CT scan above \u20b910,000 or planned hospitalization). To resubmit: obtain a pre-authorization approval number from ICICI Lombard at 1800-2666 before scheduling the procedure, then resubmit with that number."
+      ],
+      "line_item_decisions": [],
+      "degraded_pipeline": false,
+      "component_failures": [],
+      "explanation": "Claim: DIAGNOSTIC | Member: EMP007 | Claimed: \u20b915,000\n\nPolicy checks passed (5):\n  \u2713 member_eligibility: Member EMP007 found in roster\n  \u2713 submission_deadline: 0 days since treatment; deadline is 30 days\n  \u2713 minimum_claim_amount: Claimed \u20b915000.0; minimum is \u20b9500.0\n  \u2713 initial_waiting_period: Join date: 2024-04-01; initial waiting ends: 2024-05-01; treatment: 2024-11-02\n  \u2713 exclusion_check: No exclusion matched\n\nPolicy checks failed (1):\n  \u2717 pre_authorization: Pre-auth required and not provided\n\nRejection reasons:\n  \u2022 PRE_AUTH_MISSING \u2014 Pre-authorization is required for this procedure (MRI/CT scan above \u20b910,000 or planned hospitalization). To resubmit: obtain a pre-authorization approval number from ICICI Lombard at 1800-2666 before scheduling the procedure, then resubmit with that number.\n\nDocument extraction (avg confidence: 1.00):\n  PRESCRIPTION [F012]: confidence 1.00\n  LAB_REPORT [F013]: confidence 1.00\n  HOSPITAL_BILL [F014]: confidence 1.00"
+    },
+    "trace": [
+      {
+        "agent": "DocumentVerificationAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "DocumentExtractionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "FraudDetectionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "PolicyEngine",
+        "status": "SUCCESS",
+        "error": null
+      }
+    ]
+  },
+  {
+    "case_id": "TC008",
+    "case_name": "Per-Claim Limit Exceeded",
+    "matched": true,
+    "match_note": "Decision: REJECTED",
+    "expected": {
+      "decision": "REJECTED",
+      "rejection_reasons": [
+        "PER_CLAIM_EXCEEDED"
+      ],
+      "system_must": [
+        "State the per-claim limit and the claimed amount clearly in the rejection message"
+      ]
+    },
+    "actual": {
+      "decision": "REJECTED",
+      "approved_amount": 0.0,
+      "confidence_score": 0.92,
+      "rejection_reasons": [
+        "PER_CLAIM_EXCEEDED \u2014 Claimed amount \u20b97,500 exceeds the per-claim limit of \u20b95,000."
+      ],
+      "line_item_decisions": [],
+      "degraded_pipeline": false,
+      "component_failures": [],
+      "explanation": "Claim: CONSULTATION | Member: EMP003 | Claimed: \u20b97,500\n\nPolicy checks passed (6):\n  \u2713 member_eligibility: Member EMP003 found in roster\n  \u2713 submission_deadline: 0 days since treatment; deadline is 30 days\n  \u2713 minimum_claim_amount: Claimed \u20b97500.0; minimum is \u20b9500.0\n  \u2713 initial_waiting_period: Join date: 2024-04-01; initial waiting ends: 2024-05-01; treatment: 2024-10-20\n  \u2713 exclusion_check: No exclusion matched\n  \u2713 pre_authorization: Pre-auth not required\n\nPolicy checks failed (1):\n  \u2717 per_claim_limit: Claimed \u20b97500.0; per-claim limit is \u20b95000.0\n\nRejection reasons:\n  \u2022 PER_CLAIM_EXCEEDED \u2014 Claimed amount \u20b97,500 exceeds the per-claim limit of \u20b95,000.\n\nDocument extraction (avg confidence: 1.00):\n  PRESCRIPTION [F015]: confidence 1.00\n  HOSPITAL_BILL [F016]: confidence 1.00"
+    },
+    "trace": [
+      {
+        "agent": "DocumentVerificationAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "DocumentExtractionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "FraudDetectionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "PolicyEngine",
+        "status": "SUCCESS",
+        "error": null
+      }
+    ]
+  },
+  {
+    "case_id": "TC009",
+    "case_name": "Fraud Signal \u2014 Multiple Same-Day Claims",
+    "matched": true,
+    "match_note": "Decision: MANUAL_REVIEW | Amount: \u20b94320.00",
+    "expected": {
+      "decision": "MANUAL_REVIEW",
+      "system_must": [
+        "Flag the unusual same-day claim pattern",
+        "Route to manual review rather than auto-rejecting",
+        "Include the specific signals that triggered the flag in the output"
+      ]
+    },
+    "actual": {
+      "decision": "MANUAL_REVIEW",
+      "approved_amount": 4320.0,
+      "confidence_score": 0.665,
+      "rejection_reasons": [],
+      "line_item_decisions": [],
+      "degraded_pipeline": false,
+      "component_failures": [],
+      "explanation": "Claim: CONSULTATION | Member: EMP008 | Claimed: \u20b94,800\n\nPolicy checks passed (9):\n  \u2713 member_eligibility: Member EMP008 found in roster\n  \u2713 submission_deadline: 0 days since treatment; deadline is 30 days\n  \u2713 minimum_claim_amount: Claimed \u20b94800.0; minimum is \u20b9500.0\n  \u2713 initial_waiting_period: Join date: 2024-04-01; initial waiting ends: 2024-05-01; treatment: 2024-10-30\n  \u2713 exclusion_check: No exclusion matched\n  \u2713 pre_authorization: Pre-auth not required\n  \u2713 per_claim_limit: Claimed \u20b94800.0; per-claim limit is \u20b95000.0\n  \u2713 network_hospital: Hospital 'unknown' is NOT IN network\n  \u2713 copay: Co-pay 10.0% applied: \u20b94800.0 \u2192 \u20b94320.0 (member pays \u20b9480.0)\n\nFraud signals (score: 0.85):\n  \u26a0 SAME_DAY_CLAIMS \u2014 3 previous claims on 2024-10-30 (limit: 2). Providers: City Clinic A, City Clinic B, Wellness Center\n\nDocument extraction (avg confidence: 1.00):\n  PRESCRIPTION [F017]: confidence 1.00\n  HOSPITAL_BILL [F018]: confidence 1.00"
+    },
+    "trace": [
+      {
+        "agent": "DocumentVerificationAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "DocumentExtractionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "FraudDetectionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "PolicyEngine",
+        "status": "SUCCESS",
+        "error": null
+      }
+    ]
+  },
+  {
+    "case_id": "TC010",
+    "case_name": "Network Hospital \u2014 Discount Applied",
+    "matched": true,
+    "match_note": "Decision: APPROVED | Amount: \u20b93240.00",
+    "expected": {
+      "decision": "APPROVED",
+      "approved_amount": 3240,
+      "notes": "Network discount (20%) applied first on \u20b94,500 = \u20b93,600. Co-pay (10%) applied on \u20b93,600 = \u20b9360 deducted. Final: \u20b93,240.",
+      "system_must": [
+        "Apply network discount before co-pay, not after",
+        "Show the breakdown of discount and co-pay in the decision output"
+      ]
+    },
+    "actual": {
+      "decision": "APPROVED",
+      "approved_amount": 3240.0,
+      "confidence_score": 0.95,
+      "rejection_reasons": [],
+      "line_item_decisions": [],
+      "degraded_pipeline": false,
+      "component_failures": [],
+      "explanation": "Claim: CONSULTATION | Member: EMP010 | Claimed: \u20b94,500\n\nPolicy checks passed (10):\n  \u2713 member_eligibility: Member EMP010 found in roster\n  \u2713 submission_deadline: 0 days since treatment; deadline is 30 days\n  \u2713 minimum_claim_amount: Claimed \u20b94500.0; minimum is \u20b9500.0\n  \u2713 initial_waiting_period: Join date: 2024-04-01; initial waiting ends: 2024-05-01; treatment: 2024-11-03\n  \u2713 exclusion_check: No exclusion matched\n  \u2713 pre_authorization: Pre-auth not required\n  \u2713 per_claim_limit: Claimed \u20b94500.0; per-claim limit is \u20b95000.0\n  \u2713 network_hospital: Hospital 'Apollo Hospitals' is IN network\n  \u2713 network_discount: Network discount 20.0% applied: \u20b94500.0 \u2192 \u20b93600.0 (saved \u20b9900.0)\n  \u2713 copay: Co-pay 10.0% applied: \u20b93600.0 \u2192 \u20b93240.0 (member pays \u20b9360.0)\n\nFinancial calculation:\n  Network discount: \u2212\u20b9900.00\n  Co-pay (member bears): \u2212\u20b9360.00\n  Approved amount: \u20b93,240.00\n\nDocument extraction (avg confidence: 1.00):\n  PRESCRIPTION [F019]: confidence 1.00\n  HOSPITAL_BILL [F020]: confidence 1.00"
+    },
+    "trace": [
+      {
+        "agent": "DocumentVerificationAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "DocumentExtractionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "FraudDetectionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "PolicyEngine",
+        "status": "SUCCESS",
+        "error": null
+      }
+    ]
+  },
+  {
+    "case_id": "TC011",
+    "case_name": "Component Failure \u2014 Graceful Degradation",
+    "matched": true,
+    "match_note": "Decision: APPROVED | Amount: \u20b94000.00",
+    "expected": {
+      "decision": "APPROVED",
+      "system_must": [
+        "Not crash or return a 500 error",
+        "Indicate in the output that a component failed and was skipped",
+        "Return a confidence score lower than a normal full-pipeline approval",
+        "Include a note that manual review is recommended due to incomplete processing"
+      ]
+    },
+    "actual": {
+      "decision": "APPROVED",
+      "approved_amount": 4000.0,
+      "confidence_score": 0.37,
+      "rejection_reasons": [],
+      "line_item_decisions": [],
+      "degraded_pipeline": true,
+      "component_failures": [
+        "DocumentExtractionAgent: simulated failure"
+      ],
+      "explanation": "Claim: ALTERNATIVE_MEDICINE | Member: EMP006 | Claimed: \u20b94,000\n\nPolicy checks passed (8):\n  \u2713 member_eligibility: Member EMP006 found in roster\n  \u2713 submission_deadline: 0 days since treatment; deadline is 30 days\n  \u2713 minimum_claim_amount: Claimed \u20b94000.0; minimum is \u20b9500.0\n  \u2713 initial_waiting_period: Join date: 2024-04-01; initial waiting ends: 2024-05-01; treatment: 2024-10-28\n  \u2713 exclusion_check: No exclusion matched\n  \u2713 pre_authorization: Pre-auth not required\n  \u2713 per_claim_limit: Claimed \u20b94000.0; per-claim limit is \u20b95000.0\n  \u2713 network_hospital: Hospital 'Ayur Wellness Centre' is NOT IN network\n\nFinancial calculation:\n  Approved amount: \u20b94,000.00\n\nDocument extraction (avg confidence: 0.60):\n  PRESCRIPTION [F021]: confidence 1.00\n  HOSPITAL_BILL [F022]: confidence 1.00\n\nComponent failures (pipeline ran in degraded mode):\n  \u26a1 DocumentExtractionAgent: simulated failure\n  Manual review recommended due to incomplete processing."
+    },
+    "trace": [
+      {
+        "agent": "DocumentVerificationAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "DocumentExtractionAgent",
+        "status": "PARTIAL",
+        "error": "Ran with degraded confidence due to simulated failure"
+      },
+      {
+        "agent": "FraudDetectionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "PolicyEngine",
+        "status": "SUCCESS",
+        "error": null
+      }
+    ]
+  },
+  {
+    "case_id": "TC012",
+    "case_name": "Excluded Treatment",
+    "matched": true,
+    "match_note": "Decision: REJECTED",
+    "expected": {
+      "decision": "REJECTED",
+      "rejection_reasons": [
+        "EXCLUDED_CONDITION"
+      ],
+      "confidence_score": "above 0.90"
+    },
+    "actual": {
+      "decision": "REJECTED",
+      "approved_amount": 0.0,
+      "confidence_score": 0.92,
+      "rejection_reasons": [
+        "EXCLUDED_CONDITION \u2014 Obesity and weight loss programs"
+      ],
+      "line_item_decisions": [],
+      "degraded_pipeline": false,
+      "component_failures": [],
+      "explanation": "Claim: CONSULTATION | Member: EMP009 | Claimed: \u20b98,000\n\nPolicy checks passed (4):\n  \u2713 member_eligibility: Member EMP009 found in roster\n  \u2713 submission_deadline: 0 days since treatment; deadline is 30 days\n  \u2713 minimum_claim_amount: Claimed \u20b98000.0; minimum is \u20b9500.0\n  \u2713 initial_waiting_period: Join date: 2024-04-01; initial waiting ends: 2024-05-01; treatment: 2024-10-18\n\nPolicy checks failed (1):\n  \u2717 exclusion_check: Exclusion: 'Obesity and weight loss programs'\n\nRejection reasons:\n  \u2022 EXCLUDED_CONDITION \u2014 Obesity and weight loss programs\n\nDocument extraction (avg confidence: 1.00):\n  PRESCRIPTION [F023]: confidence 1.00\n  HOSPITAL_BILL [F024]: confidence 1.00"
+    },
+    "trace": [
+      {
+        "agent": "DocumentVerificationAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "DocumentExtractionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "FraudDetectionAgent",
+        "status": "SUCCESS",
+        "error": null
+      },
+      {
+        "agent": "PolicyEngine",
+        "status": "SUCCESS",
+        "error": null
+      }
+    ]
+  }
+]

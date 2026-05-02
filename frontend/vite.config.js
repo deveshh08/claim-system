@@ -6,21 +6,5 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-  },
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-      }
-    }
-  },
-  preview: {
-    proxy: {
-      '/api': {
-        target: 'https://claim-system-17.onrender.com',
-        changeOrigin: true,
-      }
-    }
   }
 })

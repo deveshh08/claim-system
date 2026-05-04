@@ -62,7 +62,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",  # Local dev
-        "https://claim-system-1.onrender.com",  # Production frontend
+        "https://claim-system-11.onrender.com",  # Production frontend
     ],
     allow_credentials=True,
     allow_methods=["*"],
